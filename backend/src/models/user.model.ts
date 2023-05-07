@@ -1,4 +1,18 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, Model, Document } from 'mongoose';
+
+export interface IUser {
+  name: string;
+  email: string;
+  password: string;
+  picture: string;
+}
+
+interface IUserDoc extends IUser, Document {
+}
+
+interface IUserModel extends Model<IUserDoc> {
+  build(attr: IUser): IUserDoc;
+};
 
 const UserSchema: Schema = new mongoose.Schema({
   name: {
@@ -20,6 +34,10 @@ const UserSchema: Schema = new mongoose.Schema({
   }
 }, {
   timestamps: true
-})
+});
 
-export default mongoose.model('User', UserSchema);
+UserSchema.statics.build = (attr: IUser) => new User(attr);
+
+const User = mongoose.model<IUserDoc, IUserModel>('User', UserSchema);
+
+export default User;

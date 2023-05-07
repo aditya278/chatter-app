@@ -1,4 +1,19 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, Model, Document } from 'mongoose';
+
+export interface IChat {
+  chatName: string;
+  isGroupChat?: boolean,
+  users: typeof Schema.Types.ObjectId[],
+  latestMessage: typeof Schema.Types.ObjectId[],
+  groupAdmin: typeof Schema.Types.ObjectId
+}
+
+interface IChatDoc extends IChat, Document {
+}
+
+interface IChatModal extends Model<IChatDoc> {
+  build(attr: IChat): IChatDoc
+}
 
 const ChatSchema: Schema = new mongoose.Schema(
   {
@@ -32,4 +47,8 @@ const ChatSchema: Schema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model('Chat', ChatSchema);
+ChatSchema.statics.build = (attr: IChat) => new Chat(attr);
+
+const Chat = mongoose.model<IChatDoc, IChatModal>('Chat', ChatSchema);
+
+export default Chat;

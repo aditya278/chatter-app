@@ -1,4 +1,18 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, Model, Document } from 'mongoose';
+import { IUser } from './user.model';
+
+export interface IMessage {
+  sender: IUser,
+  content: string;
+  chat: typeof Schema.Types.ObjectId;
+}
+
+interface IMessageDoc extends IMessage, Document {
+}
+
+interface IMessageModel extends Model<IMessageDoc> {
+  build(attr: IMessage): IMessageDoc;
+}
 
 const MessageSchema: Schema = new mongoose.Schema({
   sender: {
@@ -17,4 +31,8 @@ const MessageSchema: Schema = new mongoose.Schema({
   timestamps: true
 })
 
-export default mongoose.model('Message', MessageSchema);
+MessageSchema.statics.build = (attr: IMessage) => new Message(attr);
+
+const Message = mongoose.model('Message', MessageSchema);
+
+export default Message;
