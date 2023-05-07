@@ -1,6 +1,6 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import userRouter from './routes/user.routes';
-import errorMiddleware from './middlewares/error';
+import errorMiddleware from './middlewares/error.middleware';
 
 const app: Application = express();
 
