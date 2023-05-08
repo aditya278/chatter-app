@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import ErrorHandler from '../utils/errorHandler';
 import User, { IUser, IUserDoc } from '../models/user.model';
 import generateToken from '../config/generateToken';
+import { MD5 } from 'crypto-js';
 
 export const registerUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -17,7 +18,7 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
       name,
       email,
       password,
-      picture,
+      picture: `http://www.gravatar.com/avatar/${MD5(email).toString()}`,
     });
 
     const user = await User.create(userObj);

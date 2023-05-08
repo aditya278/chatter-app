@@ -37,7 +37,6 @@ const UserSchema: Schema = new Schema<IUser>({
   picture: {
     type: String,
     required: true,
-    default: 'https://icon-library.com/images/141782.svg.svg'
   }
 }, {
   timestamps: true
