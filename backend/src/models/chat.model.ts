@@ -1,11 +1,12 @@
 import mongoose, { Schema, Model, Document, Types } from 'mongoose';
+import Message from './message.model';
 
 export interface IChat {
   chatName: string;
   isGroupChat?: boolean,
   users: Types.ObjectId[],
-  latestMessage: Types.ObjectId[],
-  groupAdmin: Types.ObjectId
+  latestMessage?: Types.ObjectId[],
+  groupAdmin?: Types.ObjectId
 }
 
 interface IChatDoc extends IChat, Document {

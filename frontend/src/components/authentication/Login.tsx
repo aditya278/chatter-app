@@ -90,7 +90,7 @@ const Login = () => {
       <Button colorScheme='blue' width={'100%'} style={{ marginTop: 15 }} onClick={submitHandler}>
         Login
       </Button>
-      <Button variant={'solid'} colorScheme='red' width='100%' onClick={() => {
+      <Button variant={'solid'} colorScheme='red' width='100%' isLoading={loading} onClick={() => {
         setEmail('guest@example.com');
         setPassword('123456');
       }}>

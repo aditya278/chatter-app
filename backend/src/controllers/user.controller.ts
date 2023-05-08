@@ -3,6 +3,7 @@ import ErrorHandler from '../utils/errorHandler';
 import User, { IUser, IUserDoc } from '../models/user.model';
 import generateToken from '../config/generateToken';
 import { MD5 } from 'crypto-js';
+import { CustomisedRequest } from '../models/interfaces/request.interface';
 
 export const registerUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -53,6 +54,30 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
     res.json({ ...userDataWithoutPassword, token });
 
   } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * /api/user?search=aditya
+ * @param req 
+ * @param res 
+ * @param next 
+ */
+export const searchUser = async (req: CustomisedRequest, res: Response, next: NextFunction) => {
+  try {
+    const keyword = req.query ? {
+      $or: [
+        { name: { $regex: req.query.search, $options: 'i'}},
+        { email: { $regex: req.query.search, $options: 'i'}},
+      ]
+    } : {};
+
+    console.log('Req User: ', req.user);
+    const users = await User.find(keyword).find({ email: { $ne: req.user.email }});
+    res.send(users);
+  }
+  catch(err) {
     next(err);
   }
 };
