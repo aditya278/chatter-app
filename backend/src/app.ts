@@ -1,10 +1,15 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import userRouter from './routes/user.routes';
-import errorMiddleware from './middlewares/error.middleware';
+import { notFound, errorMiddleware } from './middlewares/error.middleware';
+import connectDB from './config/db';
 
+connectDB();
 const app: Application = express();
 
-app.use('/users', userRouter);
+app.use(express.json());
+app.use('/api/user', userRouter);
+
+app.use(notFound);
 
 app.get('/', (req: Request, res: Response, next: NextFunction): void => {
   res.json({ message: 'API is running'});

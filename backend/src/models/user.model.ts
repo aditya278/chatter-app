@@ -1,4 +1,8 @@
-import mongoose, { Schema, Model, Document } from 'mongoose';
+import mongoose, { Schema, Model, Document, CallbackWithoutResultAndOptionalError } from 'mongoose';
+import generateToken from '../config/generateToken';
+import bcrypt from 'bcryptjs';
+
+const BCRYPT_SALT_ROUNDS = 10;
 
 export interface IUser {
   name: string;
@@ -7,14 +11,16 @@ export interface IUser {
   picture: string;
 }
 
-interface IUserDoc extends IUser, Document {
+export interface IUserDoc extends IUser, Document {
+  token?: string;
+  matchPassword(enteredPassword: string): Promise<boolean>;
 }
 
 interface IUserModel extends Model<IUserDoc> {
   build(attr: IUser): IUserDoc;
 };
 
-const UserSchema: Schema = new mongoose.Schema({
+const UserSchema: Schema = new Schema<IUser>({
   name: {
     type: String,
     required: true
@@ -22,6 +28,7 @@ const UserSchema: Schema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
+    unique: true
   },
   password: {
     type: String,
@@ -35,6 +42,25 @@ const UserSchema: Schema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+UserSchema.pre('save', async function save (next) {
+  if (!this.isModified) next();
+
+  const salt = await bcrypt.genSalt(BCRYPT_SALT_ROUNDS);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+})
+
+UserSchema.post('save', (doc: IUserDoc, next: CallbackWithoutResultAndOptionalError) => {
+  if (!doc) next();
+  const { name, email, picture } = doc;
+  doc.token = generateToken({ name, email, picture });
+  next();
+});
+
+UserSchema.methods.matchPassword = async function (enteredPassword: string) {
+  return await bcrypt.compare(enteredPassword, this.password);
+}
 
 UserSchema.statics.build = (attr: IUser) => new User(attr);
 
