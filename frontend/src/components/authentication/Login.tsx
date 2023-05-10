@@ -10,7 +10,7 @@ const Login = () => {
   const [email, setEmail] = useState<string>();
   const [password, setPassword] = useState<string>();
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   
   const history = useHistory();
   const toast = useToast();
@@ -87,7 +87,7 @@ const Login = () => {
         </InputGroup>
       </FormControl>
 
-      <Button colorScheme='blue' width={'100%'} style={{ marginTop: 15 }} onClick={submitHandler}>
+      <Button colorScheme='blue' width={'100%'} style={{ marginTop: 15 }} isLoading={loading} onClick={submitHandler}>
         Login
       </Button>
       <Button variant={'solid'} colorScheme='red' width='100%' isLoading={loading} onClick={() => {
