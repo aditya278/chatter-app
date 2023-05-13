@@ -22,6 +22,7 @@ const ChatProvider = ({ children }: any) => {
   const history = useHistory();
 
   useEffect(() => {
+    if (!history) return;
     const _userInfo = localStorage.getItem('userInfo');
     if (!_userInfo) {
       setUser(undefined);
@@ -31,7 +32,7 @@ const ChatProvider = ({ children }: any) => {
 
     const userInfo = JSON.parse(_userInfo);
     setUser(userInfo);
-
+    history.push('/chats');
   }, [history]);
 
   return <ChatContext.Provider value={{user, selectedChat, setSelectedChat, chats, setChats}}>{children}</ChatContext.Provider>

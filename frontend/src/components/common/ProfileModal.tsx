@@ -5,7 +5,7 @@ import { ViewIcon } from '@chakra-ui/icons';
 
 interface IProfileModalProps {
   user?: IUser;
-  children: any;
+  children?: any;
 }
 
 const ProfileModal = ({ user, children }: IProfileModalProps) => {
@@ -16,7 +16,7 @@ const ProfileModal = ({ user, children }: IProfileModalProps) => {
       {children ? (
         <span onClick={onOpen}>{children}</span>
       ) : (
-        <IconButton display={{ base: 'flex' }} icon={<ViewIcon />} aria-label={''} />
+        <IconButton onClick={onOpen} display={{ base: 'flex' }} icon={<ViewIcon />} aria-label={''} />
       )}
 
       <Modal size='lg' isOpen={isOpen} onClose={onClose} isCentered>

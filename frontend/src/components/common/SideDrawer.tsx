@@ -1,4 +1,5 @@
 import { Avatar, Box, Button, Drawer, DrawerBody, DrawerContent, DrawerHeader, DrawerOverlay, Input, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Text, Tooltip, useToast } from '@chakra-ui/react';
+import { Spinner } from '@chakra-ui/spinner';
 import { useDisclosure } from '@chakra-ui/hooks';
 import { useState } from 'react'
 import { BellIcon, ChevronDownIcon } from '@chakra-ui/icons';
@@ -67,17 +68,18 @@ const SideDrawer = () => {
 
   const accessChat = async (id: string) => {
     try {
-      setLoading(true);
+      setLoadingChat(true);
 
-      const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_URI}/api/chat`, {
+      const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_URI}/api/chat`, { userId: id }, {
         headers: {
           Authorization: `Bearer ${user?.token}`,
           'Content-type': 'application/json'
         }
       });
 
+      if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);
+
       setSelectedChat(data);
-      setLoadingChat(false);
       onClose();
 
     } catch (err: any) {
@@ -90,7 +92,7 @@ const SideDrawer = () => {
         position: 'top-right'
       });
     } finally {
-      setLoading(false);
+      setLoadingChat(false);
     }
   }
 
@@ -159,6 +161,7 @@ const SideDrawer = () => {
                 searchResult?.map((user: IUser) => <UserListItem key={user._id} user={user} handleFunction={() => accessChat(user._id)} />)
               )
             }
+            {loadingChat && <Spinner ml={'auto'} display={'flex'} />}
           </DrawerBody>
         </DrawerContent>
       </Drawer>
