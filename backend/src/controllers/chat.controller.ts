@@ -16,7 +16,7 @@ export const accessChat = async (req: CustomisedRequest, res: Response, next: Ne
     let isChat = await Chat.find({
       isGroupChat: false,
       $and: [
-        { users: { $elemMatch: { $eq: req.user._id } } },
+        { users: { $elemMatch: { $eq: req?.user?._id } } },
         { users: { $elemMatch: { $eq: userId } } },
       ]
     }).populate('users', '-password')
@@ -28,7 +28,7 @@ export const accessChat = async (req: CustomisedRequest, res: Response, next: Ne
       let chatData = Chat.build({
         chatName: 'sender',
         isGroupChat: false,
-        users: [req.user._id, userId]
+        users: [req?.user?._id, userId]
       });
 
       const createdChat = await Chat.create(chatData);
@@ -45,7 +45,7 @@ export const accessChat = async (req: CustomisedRequest, res: Response, next: Ne
 
 export const fetchChats = async (req: CustomisedRequest, res: Response, next: NextFunction) => {
   try {
-    Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
+    Chat.find({ users: { $elemMatch: { $eq: req?.user?._id } } })
       .populate('users', '-password')
       .populate('groupAdmin', '-password')
       .populate('latestMessage')
@@ -82,7 +82,7 @@ export const createGroupChat = async (req: CustomisedRequest, res: Response, nex
       chatName: req.body.name,
       users: users,
       isGroupChat: true,
-      groupAdmin: req.user._id
+      groupAdmin: req?.user?._id
     });
 
     const groupChat = await Chat.create(groupChatObj);

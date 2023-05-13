@@ -27,9 +27,10 @@ import UserListItem from '../user/UserListItem';
 interface IUpdateGroupModalProps {
   fetchAgain: boolean;
   setFetchAgain: React.Dispatch<React.SetStateAction<boolean>>;
+  fetchMessages: () => Promise<void>;
 }
 
-const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }: IUpdateGroupModalProps) => {
+const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }: IUpdateGroupModalProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [groupChatName, setGroupChatName] = useState<string>();
@@ -72,6 +73,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }: IUpdateGroupModalPr
 
       userToDelete.email === user?.email ? setSelectedChat(undefined) : setSelectedChat(data);
       setFetchAgain(!fetchAgain);
+      fetchMessages();
     }
     catch(err: any) {
       toast({

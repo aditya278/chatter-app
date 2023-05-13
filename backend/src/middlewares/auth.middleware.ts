@@ -4,7 +4,7 @@ import User, { IUser } from '../models/user.model';
 import { CustomisedRequest } from '../models/interfaces/request.interface';
 import ErrorHandler from '../utils/errorHandler';
 
-export const auth = async (req: any, res: Response, next: NextFunction) => {
+export const auth = async (req: CustomisedRequest, res: Response, next: NextFunction) => {
   let token;
 
   try {

@@ -1,8 +1,7 @@
 import mongoose, { Schema, Model, Document, Types } from 'mongoose';
-import { IUser } from './user.model';
 
 interface IMessageDoc extends Document {
-  sender: IUser,
+  sender: Types.ObjectId,
   content: string;
   chat: Types.ObjectId;
 }

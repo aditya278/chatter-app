@@ -74,7 +74,7 @@ export const searchUser = async (req: CustomisedRequest, res: Response, next: Ne
     } : {};
 
     console.log('Req User: ', req.user);
-    const users = await User.find(keyword).find({ email: { $ne: req.user.email }});
+    const users = await User.find(keyword).find({ email: { $ne: req?.user?.email }});
     res.send(users);
   }
   catch(err) {
