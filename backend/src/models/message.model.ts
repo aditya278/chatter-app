@@ -1,6 +1,15 @@
 import mongoose, { Schema, Model, Document, Types } from 'mongoose';
+import { IUser, UserData } from './user.model';
+import { ChatData, IChat } from './chat.model';
 
-interface IMessageDoc extends Document {
+export type MessageData = {
+  _id: string;
+  sender: UserData;
+  content: string;
+  chat: ChatData;
+};
+
+export interface IMessageDoc extends Document {
   sender: Types.ObjectId,
   content: string;
   chat: Types.ObjectId;

@@ -4,6 +4,13 @@ import bcrypt from 'bcryptjs';
 
 const BCRYPT_SALT_ROUNDS = 10;
 
+export type UserData = {
+  _id: string;
+  email: string;
+  name: string;
+  picture: string;
+}
+
 export interface IUser {
   name: string;
   email: string;
@@ -52,8 +59,8 @@ UserSchema.pre('save', async function save (next) {
 
 UserSchema.post('save', (doc: IUserDoc, next: CallbackWithoutResultAndOptionalError) => {
   if (!doc) next();
-  const { name, email, picture } = doc;
-  doc.token = generateToken({ name, email, picture });
+  const { name, email, picture, _id } = doc;
+  doc.token = generateToken({ name, email, picture, _id });
   next();
 });
 

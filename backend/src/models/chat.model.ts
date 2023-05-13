@@ -1,5 +1,15 @@
 import mongoose, { Schema, Model, Document, Types } from 'mongoose';
-import Message from './message.model';
+import Message, { MessageData } from './message.model';
+import { UserData } from './user.model';
+
+export type ChatData = {
+  _id: string;
+  chatName: string;
+  isGroupChat?: boolean;
+  users: UserData[];
+  latestMessage?: MessageData[];
+  groupAdmin: UserData;
+}
 
 export interface IChat {
   chatName: string;

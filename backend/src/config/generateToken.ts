@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
-import { IUser } from '../models/user.model';
+import { UserData } from '../models/user.model';
 
-const generateToken = (user: Omit<IUser, 'password'>) => {
+const generateToken = (user: UserData) => {
   const expiresIn = '1d';
   const secret = process.env.JWT_SECRET || '';
   return jwt.sign({ ...user}, secret, {

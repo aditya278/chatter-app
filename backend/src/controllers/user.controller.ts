@@ -49,7 +49,7 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
 
     if (!(await user.matchPassword(password))) throw new ErrorHandler('Invalid Credentials', 401);
 
-    const userDataWithoutPassword = { name: user.name, email: user.email, picture: user.picture };
+    const userDataWithoutPassword = { name: user.name, email: user.email, picture: user.picture, _id: user._id };
     const token = generateToken(userDataWithoutPassword);
     res.json({ ...userDataWithoutPassword, token });
 
