@@ -11,7 +11,7 @@ const ScrollableChat = ({ messages}: { messages: IMessage[]}) => {
     <ScrollableFeed>
       {
         messages && messages.map((message: IMessage, idx: number) => (
-          <div style={{ display: 'flex'}} key={message._id}>
+          <div style={{ display: 'flex'}} key={message.id}>
             {(isSameSender(messages, message, idx, user?.email as string)
             || isLastMessage(messages, idx, user?.email as string)
             ) && (

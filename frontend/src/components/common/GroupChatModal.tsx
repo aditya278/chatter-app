@@ -36,7 +36,7 @@ const GroupChatModal = ({ children }: IGroupChatModalProps) => {
 
   const toast = useToast();
 
-  const { user, chats, setChats } = useChatContext();
+  const { user, chats, setChats, sortChats } = useChatContext();
 
   const searchQuery = useDebounce(search, 300);
 
@@ -88,13 +88,13 @@ const GroupChatModal = ({ children }: IGroupChatModalProps) => {
     try {
       const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_URI}/api/chat/group`, { 
         name: groupChatName,
-        users: JSON.stringify(selectedUsers.map(user => user._id))
+        users: JSON.stringify(selectedUsers.map(user => user.id))
       },{
         headers: {
           Authorization: `Bearer ${user?.token}`,
         },
       });
-      setChats(chats => [data, ...chats]);
+      setChats(sortChats([data, ...chats]));
       onClose();
       toast({
         title: 'New Group Chat created',
@@ -104,10 +104,10 @@ const GroupChatModal = ({ children }: IGroupChatModalProps) => {
         position: 'top-right'
       });
     }
-    catch (err: any) {      
+    catch (err: any) {
       toast({
-        title: 'Error while creating the group chat',
-        description: err.response.data.message || err.message,
+        title: 'Failed to create the chat',
+        description: err.response?.data?.message || err.message,
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -123,16 +123,16 @@ const GroupChatModal = ({ children }: IGroupChatModalProps) => {
         status: 'warning',
         duration: 5000,
         isClosable: true,
-        position: 'top-right',
+        position: 'top-right'
       });
       return;
     }
 
-    setSelectedUsers((selectedUsers) => [...selectedUsers, user]);
+    setSelectedUsers([...selectedUsers, user]);
   };
 
   const handleDelete = (userToDel: IUser) => {
-    setSelectedUsers(selectedUsers => selectedUsers.filter(user => user._id !== userToDel._id));
+    setSelectedUsers(selectedUsers => selectedUsers.filter(user => user.id !== userToDel.id));
   };
 
   return (
@@ -159,7 +159,7 @@ const GroupChatModal = ({ children }: IGroupChatModalProps) => {
             </FormControl>
             <Box w={'100%'} display={'flex'} flexWrap={'wrap'}>
               {selectedUsers.map((user) => (
-                <UserBadgeItem key={user._id} user={user} handleFunction={() => handleDelete(user)} />
+                <UserBadgeItem key={user.id} user={user} handleFunction={() => handleDelete(user)} />
               ))}
             </Box>
             {loading ? (
@@ -168,7 +168,7 @@ const GroupChatModal = ({ children }: IGroupChatModalProps) => {
               searchResult
                 ?.slice(0, 4)
                 ?.map((user) => (
-                  <UserListItem key={user._id} user={user} handleFunction={() => handleGroup(user)} />
+                  <UserListItem key={user.id} user={user} handleFunction={() => handleGroup(user)} />
                 ))
             )}
           </ModalBody>

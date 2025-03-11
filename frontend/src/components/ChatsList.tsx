@@ -10,25 +10,21 @@ import GroupChatModal from "./common/GroupChatModal";
 
 const ChatsList = ({ fetchAgain } : { fetchAgain: boolean }) => {
   const [loggedUser, setLoggedUser] = useState<IUser>();
-  const { chats, setChats, selectedChat, setSelectedChat, user } = useChatContext();
+  const { chats, setChats, selectedChat, setSelectedChat, user, sortChats } = useChatContext();
 
   const toast = useToast();
 
   const fetchChats = async () => {
     try {
-      const options = {
-        headers: {
-          Authorization: `Bearer ${user?.token}`
-        }
-      };
-
       const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URI}/api/chat`, {
         headers: {
           Authorization: `Bearer ${user?.token}`,
           'Content-type': 'application/json'
         }
       });
-      setChats(data);
+      
+      // Use the sortChats function from context to ensure consistent sorting
+      setChats(sortChats(data));
     }
     catch(err) {
       toast({
@@ -45,7 +41,7 @@ const ChatsList = ({ fetchAgain } : { fetchAgain: boolean }) => {
   useEffect(() => {
     setLoggedUser(JSON.parse(localStorage.getItem('userInfo') || ''));
     fetchChats();
-  }, [fetchAgain]);
+  }, [fetchAgain, user]);
 
   return (
     <Box
@@ -100,21 +96,21 @@ const ChatsList = ({ fetchAgain } : { fetchAgain: boolean }) => {
                 px={3}
                 py={2}
                 borderRadius="lg"
-                key={chat._id}
+                key={chat.id}
               >
                 <Text>
                   {!chat.isGroupChat
-                    ? getSender(chat.users, loggedUser) as string
+                    ? getSender(loggedUser, chat.users)
                     : chat.chatName}
                 </Text>
-                {chat.latestMessage?.length ? (
+                {chat.latestMessage && (
                   <Text fontSize="xs">
-                    <b>{chat.latestMessage?.[0].sender?.name} : </b>
-                    {(chat.latestMessage?.[0].content?.length || 0) > 50
-                      ? chat.latestMessage?.[0].content?.substring(0, 51) + "..."
-                      : chat.latestMessage?.[0].content}
+                    <b>{chat.latestMessage.sender.name} : </b>
+                    {chat.latestMessage.content.length > 50
+                      ? chat.latestMessage.content.substring(0, 51) + "..."
+                      : chat.latestMessage.content}
                   </Text>
-                ) : null}
+                )}
               </Box>
             ))}
           </Stack>

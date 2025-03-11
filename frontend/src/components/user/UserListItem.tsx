@@ -3,13 +3,13 @@ import { IUser } from "../../Api/Models/User"
 
 interface IUserListItem {
   user: IUser;
-  handleFunction: (id: string) => void;
+  handleFunction: (id: number) => void;
 }
 
-const UserListItem = ({ user, handleFunction } : IUserListItem) => {
+const UserListItem = ({ user, handleFunction }: IUserListItem) => {
   return (
     <Box
-      onClick={handleFunction}
+      onClick={() => handleFunction(user.id)}
       cursor={'pointer'}
       bg='#E8E8E8'
       _hover={{

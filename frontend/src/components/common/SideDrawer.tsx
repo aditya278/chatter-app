@@ -22,7 +22,7 @@ const SideDrawer = () => {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const { user, setSelectedChat, chats, setChats } = useChatContext();
+  const { user, setSelectedChat, chats, setChats, sortChats } = useChatContext();
 
   const logoutHandler = () => {
     localStorage.removeItem('userInfo');
@@ -66,7 +66,7 @@ const SideDrawer = () => {
     }
   };
 
-  const accessChat = async (id: string) => {
+  const accessChat = async (id: number) => {
     try {
       setLoadingChat(true);
 
@@ -77,7 +77,9 @@ const SideDrawer = () => {
         }
       });
 
-      if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);
+      if (!chats.find((c) => c.id === data.id)) {
+        setChats(sortChats([data, ...chats]));
+      }
 
       setSelectedChat(data);
       onClose();
@@ -158,7 +160,7 @@ const SideDrawer = () => {
               loading ? (
                 <ChatLoading />
               ) : (
-                searchResult?.map((user: IUser) => <UserListItem key={user._id} user={user} handleFunction={() => accessChat(user._id)} />)
+                searchResult?.map((user: IUser) => <UserListItem key={user.id} user={user} handleFunction={accessChat} />)
               )
             }
             {loadingChat && <Spinner ml={'auto'} display={'flex'} />}

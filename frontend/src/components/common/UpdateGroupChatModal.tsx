@@ -38,7 +38,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }: IUpd
   const [searchResult, setSearchResult] = useState<IUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [renameLoading, setRenameLoading] = useState(false);
-  const { selectedChat, setSelectedChat, user } = useChatContext();
+  const { selectedChat, setSelectedChat, user, chats, setChats, sortChats } = useChatContext();
 
   const toast = useToast();
 
@@ -63,15 +63,22 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }: IUpd
     try {
       setLoading(true);
       const { data } = await axios.put(`${import.meta.env.VITE_BACKEND_URI}/api/chat/groupremove`, {
-        chatId: selectedChat?._id,
-        userId: userToDelete._id
+        chatId: selectedChat?.id,
+        userId: userToDelete.id
       }, {
         headers: {
           Authorization: `Bearer ${user?.token}`
         }
       });
 
-      userToDelete.email === user?.email ? setSelectedChat(undefined) : setSelectedChat(data);
+      if (userToDelete.email === user?.email) {
+        setSelectedChat(undefined);
+      } else {
+        setSelectedChat(data);
+        const updatedChats = chats.map(c => c.id === data.id ? data : c);
+        setChats(sortChats(updatedChats));
+      }
+      
       setFetchAgain(!fetchAgain);
       fetchMessages();
     }
@@ -93,7 +100,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }: IUpd
     try {
       setRenameLoading(true);
       const { data } = await axios.put(`${import.meta.env.VITE_BACKEND_URI}/api/chat/rename`, {
-        chatId: selectedChat?._id,
+        chatId: selectedChat?.id,
         chatName: groupChatName
       }, {
         headers: {
@@ -102,6 +109,8 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }: IUpd
       });
 
       setSelectedChat(data);
+      const updatedChats = chats.map(c => c.id === data.id ? data : c);
+      setChats(sortChats(updatedChats));
       setFetchAgain(!fetchAgain);
     }
     catch(err: any) {
@@ -149,9 +158,20 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }: IUpd
   }, [searchQuery]);
 
   const handleAddUser = async (userToAdd: IUser) => {
-    if (selectedChat?.users?.find(user => user._id === userToAdd._id)) {
+    if (selectedChat?.users?.find(user => user.id === userToAdd.id)) {
       toast({
         title: 'User already in group',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+        position: 'top-right'
+      });
+      return;
+    }
+
+    if (selectedChat?.groupAdmin?.id !== user?.id) {
+      toast({
+        title: 'Only admins can add someone!',
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -163,8 +183,8 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }: IUpd
     try {
       setLoading(true);
       const { data } = await axios.put(`${import.meta.env.VITE_BACKEND_URI}/api/chat/groupadd`, {
-        chatId: selectedChat?._id,
-        userId: userToAdd._id,
+        chatId: selectedChat?.id,
+        userId: userToAdd.id,
       }, {
         headers: {
           Authorization: `Bearer ${user?.token}`
@@ -172,19 +192,19 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }: IUpd
       });
 
       setSelectedChat(data);
+      const updatedChats = chats.map(c => c.id === data.id ? data : c);
+      setChats(sortChats(updatedChats));
       setFetchAgain(!fetchAgain);
     }
     catch(err: any) {
       toast({
-        title: 'Error Occured',
+        title: 'Error occuerd!',
         description: err.response?.data?.message || err.message,
         status: 'error',
-        duration: 5000,
         isClosable: true,
-        position: 'bottom-right'
+        position: 'top-right'
       });
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -208,7 +228,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }: IUpd
               pb={3}
             >
               {selectedChat?.users?.map(user => (
-                <UserBadgeItem key={user._id} user={user} handleFunction={() => handleDelete(user)} />
+                <UserBadgeItem key={user.id} user={user} handleFunction={() => handleDelete(user)} />
               ))}
             </Box>
             <FormControl display={'flex'}>
@@ -242,7 +262,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain, fetchMessages }: IUpd
               ) : (
                 searchResult?.map(user => (
                   <UserListItem
-                    key={user._id}
+                    key={user.id}
                     user={user}
                     handleFunction={() => handleAddUser(user)}
                   />
