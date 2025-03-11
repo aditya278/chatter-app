@@ -1,38 +1,29 @@
 import { Response, NextFunction } from 'express';
 import ErrorHandler from '../utils/errorHandler';
-import Message from '../models/message.model';
 import { CustomisedRequest } from '../models/interfaces/request.interface';
-import User from '../models/user.model';
-import Chat from '../models/chat.model';
-
+import * as messageService from '../services/message.service';
 
 export const sendMessage = async (req: CustomisedRequest, res: Response, next: NextFunction) => {
   try {
     const { chatId, content } = req.body;
 
-    if (!chatId || !content) throw new ErrorHandler('Invalid data passed into request', 400);
+    if (!chatId || !content) {
+      throw new ErrorHandler('Invalid data passed into request', 400);
+    }
 
-    let message = await Message.create({
-      sender: req?.user?._id,
+    if (!req.user?.id) {
+      throw new ErrorHandler('User not authenticated', 401);
+    }
+
+    const message = await messageService.sendMessage({
       content,
-      chat: chatId
+      chatId: parseInt(chatId),
+      senderId: req.user.id
     });
 
-    message = await message.populate('sender', 'name email picture')
-    message = await message.populate('chat');
-    await User.populate(message, {
-      path: 'chat.users',
-      select: 'name picture email'
-    });
-
-    await Chat.findByIdAndUpdate(req.body.chatId, {
-      latestMessage: message
-    });
-
-    res.json(message);
+    res.status(200).json(message);
   }
   catch (err) {
-    console.log('Error: ', err);
     next(err);
   }
 };
@@ -40,15 +31,23 @@ export const sendMessage = async (req: CustomisedRequest, res: Response, next: N
 export const allMessages = async (req: CustomisedRequest, res: Response, next: NextFunction) => {
   try {
     const { chatId } = req.params;
-    if (!chatId) throw new ErrorHandler('Invalid data passed into request', 400);
+    
+    if (!chatId) {
+      throw new ErrorHandler('Invalid data passed into request', 400);
+    }
 
-    const messages = await Message.find({ chat: chatId })
-      .populate("sender", "name picture email")
-      .populate("chat");
-    res.json(messages);
+    if (!req.user?.id) {
+      throw new ErrorHandler('User not authenticated', 401);
+    }
+
+    const messages = await messageService.getMessages(
+      parseInt(chatId),
+      req.user.id
+    );
+    
+    res.status(200).json(messages);
   }
   catch (err) {
-    console.log('Error: ', err);
     next(err);
   }
 };
